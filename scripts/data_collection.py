@@ -1,36 +1,55 @@
 import ccxt 
 from concurrent.futures import ThreadPoolExecutor
 
-pair = 'BTC/USD' #declare the pair we want to arbitrage
 
-exchanges = ccxt.exchanges
+supported_exchanges = [
+    "bitbns", "ace", "binanceus", "bequant", "bitopro", "bingx", "bitso",
+    "bitcoincom", "bitstamp", "bitget", "bigone", "blockchaincom", "bitmart",
+    "bitfinex", "bitpanda", "btcmarkets", "btcalpha", "bitteam", "ascendex",
+    "coinbaseexchange", "bitmex", "btcturk", "coinmate", "coinlist",
+    "cryptocom", "coinsph", "coinex", "coinmetro", "coinbaseadvanced",
+    "coincatch", "coinbase", "exmo", "deribit", "fmfwio", "currencycom",
+    "gemini", "delta", "hitbtc", "bitrue", "digifinex", "hollaex", "cex",
+    "huobi", "kraken", "htx", "lbank", "indodax", "kuna", "oceanex",
+    "novadax", "luno", "ndax", "latoken", "gateio", "p2b", "kucoin",
+    "onetrading", "tradeogre", "gate", "mexc", "okx", "phemex", "poloniex",
+    "upbit", "probit", "timex", "whitebit", "zonda", "woo", "yobit",
+    "bitfinex1", "wazirx"
+]
 
-supported_exchanges = {} #dictionary that supports the exchanges that work for BTC/USD 
+pair = 'BTC/USDT'
 
-##figure out how to make this loop faster.. using "concurrent.futures (threading) may help with this???"
-for exc_name in exchanges:
+market_data = {}
+
+def fetch_market_data(exchange_name):
     try:
-        exchange_class = getattr(ccxt, exc_name)
+        exchange_class = getattr(ccxt, exchange_name)
         exchange = exchange_class()
 
-        markets = exchange.load_markets()
-        if pair in markets:
-            supported_exchanges[exchange.id] = exchange
-            print(f"{target_pair} is supported on {exchange.id}") #solely for debugging purposes atm 
-        else:
-            print(f"{target_pair} is not supported on {exchange.id}") #solely for debugging purposes atm
+        ticker = exchange.fetch_ticker(pair)
+
+        return {
+            "exchange": exchange_name,
+            "bid": ticker["bid"],
+            "ask": ticker["ask"],
+            "timestamp": ticker["timestamp"],
+        }
+    except Exception as e:
+        print(f"Failed to fetch data for {exchange_name}: {e}")
+        return None
+    
+with ThreadPoolExecutor() as executor:
+    results = executor.map(fetch_market_data, supported_exchanges)
+
+for result in results:
+    if result:
+        market_data[result["exchange"]] = result
 
 
-    except Exception as e:  
-        print(f"Failed to fetch for {exc_name}: {e}") 
-
-print("\nExchanges supporting the target pair:")
-for exchange_id in supported_exchanges:
-    print(f"- {exchange_id}")
-
-
-
-
-
-
+## solely for debugging purposes, just lists out all the market data on various exchanges
+# print("\nCollected Market Data:")
+# for exchange, data in market_data.items():
+#     print(f"{exchange}: Bid = {data['bid']}, Ask = {data['ask']}, Timestamp = {data['timestamp']}")
+    
+    
 
