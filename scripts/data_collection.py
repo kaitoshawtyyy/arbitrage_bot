@@ -13,8 +13,8 @@ supported_exchanges = [
     "huobi", "kraken", "htx", "lbank", "indodax", "kuna", "oceanex",
     "novadax", "luno", "ndax", "latoken", "gateio", "p2b", "kucoin",
     "onetrading", "tradeogre", "gate", "mexc", "okx", "phemex", "poloniex",
-    "upbit", "probit", "timex", "whitebit", "zonda", "woo", "yobit",
-    "bitfinex1", "wazirx"
+    "upbit", "probit", "timex", "whitebit", "zonda", "yobit",
+    "bitfinex1", "wazirx", "xt"
 ]
 
 pair = 'BTC/USDT'
@@ -35,7 +35,7 @@ def fetch_market_data(exchange_name):
             "timestamp": ticker["timestamp"],
         }
     except Exception as e:
-        print(f"Failed to fetch data for {exchange_name}: {e}")
+        # print(f"Failed to fetch data for {exchange_name}: {e}")
         return None
     
 with ThreadPoolExecutor() as executor:
